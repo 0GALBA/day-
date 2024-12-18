@@ -1,10 +1,9 @@
-use std::{fs::File, io::{empty, Read}, os::unix::raw::blksize_t};
+use std::{fs::File, io::Read};
 
 #[derive(Debug)]
 enum Block {
-    Files (i32, i32), // size, index
-    Empty (i32), // size
-
+    Files(i32, i32),  // size, index
+    Empty(i32),       // size
 }
 
 #[derive(Debug)]
@@ -14,11 +13,15 @@ struct Disk {
 
 impl Block {
     fn new_from_char(c: char, index: i32) -> Block {
-
-        if index%2 == 0 {
-            return Block::Files(c.to_digit(10).unwrap() as i32, index/2);
-        } else {
-            return Block::Empty(c.to_digit(10).unwrap() as i32);
+        match c.to_digit(10) {
+            Some(digit) => {
+                if index % 2 == 0 {
+                    Block::Files(digit as i32, index / 2)
+                } else {
+                    Block::Empty(digit as i32)
+                }
+            },
+            None => Block::Empty(0),
         }
     }
 }
@@ -32,13 +35,34 @@ impl Disk {
             index += 1;
             blocks.push(gugus);
         }
-        Disk {
-            blocks,
+
+        Disk { blocks }
+    }
+
+    fn get_first_empty(&self) -> Option<&Block> {
+        // Renvoyer le premier block vide
+        for block in &self.blocks {
+            if let Block::Empty(..) = block {
+                return Some(block);
+            }
         }
+        None
+    }
+
+    fn get_last_filles(&self) -> Option<&Block> {
+        // Renvoyer le dernier block de type Files
+        for block in self.blocks.iter().rev() {
+            if let Block::Files(..) = block {
+                return Some(block);
+            }
+        }
+        None
     }
 }
 
-
+fn transpose (){
+    
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buffer = String::new();
@@ -46,5 +70,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     f.read_to_string(&mut buffer)?;
     let loulou = Disk::new_from_string(buffer);
     println!("{:?}", loulou);
+
     Ok(())
 }
+
+//a faire
+//parcorire le vecteur et déplacer les chiffre vers la gauche en partans de la droite telle que 111...22.33     113322
+//utiliser des neouveaux énum, boucle etc...
