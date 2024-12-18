@@ -1,4 +1,4 @@
-use std::{fs::File, io::Read};
+use std::{fs::File, io::{empty, Read}};
 
 #[derive(Debug)]
 enum Block {
@@ -60,9 +60,23 @@ impl Disk {
     }
 }
 
-fn transpose (){
-    
+fn reorganize_blocks(mut disk: Disk) {
+    for (pos, block) in disk.blocks.iter_mut().enumerate() {
+        if let Block::Empty(empty_size) = block {
+            if let Some(Block::Files(file_size, file_index)) = disk.get_last_filles() {
+                let num_to_copy = *empty_size as usize;
+                for i in 0..num_to_copy {
+                    if pos + i < disk.blocks.len() {
+                        disk.blocks[pos + i] = Block::Files(*file_size, *file_index);
+                    }
+                }
+            }
+        }
+    }
 }
+//faire une première passe ou on fais en sorte de ne rien supprimer
+//regarder le 1er empty et reconaitre sa longeur pour ajouter la meme longeure a la place du empty a partir du fichier suit a cela supprimer le empty et la longuerre du empty au fichier.
+//insert
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buffer = String::new();
