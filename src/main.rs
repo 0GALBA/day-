@@ -96,6 +96,24 @@ fn reorganize_blocks(disk: &mut Disk) {
 //regarder le 1er empty et reconaitre sa longeur pour ajouter la meme longeure a la place du empty a partir du fichier suit a cela supprimer le empty et la longuerre du empty au fichier.
 //insert        remouve 
 
+fn calcul(disk:Disk){
+    let mut truc:i128 = 0;
+    let mut res:i128 = 0;
+    for block in disk.blocks {
+        if let Block::Files(size, id) = block {
+            for _i in 0..size {
+                res += truc * id as i128;
+                truc += 1;
+            }
+        } else if let Block::Empty(size) = block {
+            truc += size as i128;
+        }
+    }
+    println!("{}", res);
+}
+//multiplier chaque chiffre avec sont index et aditionner tout les chiffre
+
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut buffer = String::new();
     let mut f = File::open("data.csv")?;
@@ -103,7 +121,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut loulou = Disk::new_from_string(buffer);
     reorganize_blocks(&mut loulou);
     println!("{:?}", loulou.blocks);
-
+    calcul(loulou);
     Ok(())
 }
 
